@@ -51,3 +51,4 @@ rebel.xml
 build/
 .gradle/
 
+.DS_Store
