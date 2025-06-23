@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.post_project.mapper.PostMapper">
+    <!-- 게시물 저장 -->
+    <insert id="savePost" parameterType="post" useGeneratedKeys="true" keyProperty="postId">
+        insert into post
+         (post_type,
+          post_title,
+          post_content,
+          post_author_id)
+      VALUES
+        (#{postType},
+         #{postTitle},
+         #{postContent},
+         #{postAuthorId})
+    </insert>
+
+    <!-- 특정 게시물 조회 -->
+    <select id="findPostById" parameterType="Long" resultType="post">
+        SELECT
+            post_id        AS postId,
+            post_type      AS postType,
+            post_title     AS postTitle,
+            post_content   AS postContent,
+            post_author_id AS postAuthorId,
+            post_created_at AS postCreatedAt,
+            post_edit_at    AS postEditAt,
+            post_image      AS postImage,
+            post_deleted    AS postDeleted
+        FROM post
+        WHERE post_id = #{postId}
+    </select>
+
+    <!-- 특정 종류(Type) 게시물 반환 -->
+    <select id="findPostsByType" parameterType="String" resultType="post">
+        SELECT
+            post_id        AS postId,
+            post_type      AS postType,
+            post_title     AS postTitle,
+            post_content   AS postContent,
+            post_author_id AS postAuthorId,
+            post_created_at AS postCreatedAt,
+            post_edit_at    AS postEditAt,
+            post_image      AS postImage,
+            post_deleted    AS postDeleted
+        FROM post
+        WHERE post_type = #{postType}
+    </select>
+
+    <!-- 게시물 수정 -->
+    <update id="updatePost" parameterType="post">
+        UPDATE post
+        SET post_title     = #{postTitle},
+            post_content   = #{postContent},
+            post_edit_at   = NOW(),
+            post_deleted   = #{postDeleted}
+        WHERE post_id        = #{postId}
+    </update>
+
+
+    <!-- 게시물 개수 조회 -->
+    <select id="countPostsByType" parameterType="String" resultType="long">
+        SELECT COUNT(*) FROM post
+        WHERE post_type = #{postType}
+    </select>
+
+    <!-- 페이징된 게시물 조회 -->
+    <select id="findPostsByTypeWithPageing" parameterType="map" resultType="com.example.post_project.post.Post">
+        SELECT
+            post_id        AS postId,
+            post_type      AS postType,
+            post_title     AS postTitle,
+            post_content   AS postContent,
+            post_author_id AS postAuthorId,
+            post_created_at AS postCreatedAt,
+            post_edit_at    AS postEditAt,
+            post_image      AS postImage,
+            post_deleted    AS postDeleted
+        FROM post
+        WHERE post_type = #{postType} AND post_deleted = FALSE
+        ORDER BY post_created_at DESC
+        LIMIT #{perPageNumber} OFFSET #{startIndex}
+    </select>
+
+</mapper>

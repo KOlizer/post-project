@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>📋 게시판 홈</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<!-- 로그인 성공 Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="loginToast" class="toast align-items-center text-bg-success border-0"
+         role="alert" aria-live="assertive" aria-atomic="true"
+         th:if="${loginMsg}">
+        <div class="d-flex">
+            <div class="toast-body" th:text="${loginMsg}">로그인 성공!</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- 저장 성공 Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="saveToast" class="toast align-items-center text-bg-primary border-0"
+         role="alert" aria-live="assertive" aria-atomic="true"
+         th:if="${saveMsg}">
+        <div class="d-flex">
+            <div class="toast-body" th:text="${saveMsg}">저장 성공!</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- 내비게이션 바 -->
+<nav class="navbar navbar-expand-lg bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">📋 게시판</a>
+        <div class="ms-auto">
+            <div th:if="${loginUser != null}">
+                <span class="me-3 fw-semibold"
+                      th:text="${loginUser.userName} + ' 님 환영합니다.'"></span>
+                <a class="btn btn-outline-secondary btn-sm me-2" th:href="@{/auth/logout}">로그아웃</a>
+                <a class="btn btn-success btn-sm" th:href="@{/post/newPost}">새 글 작성</a>
+            </div>
+            <div th:unless="${loginUser != null}">
+                <a class="btn btn-primary btn-sm me-2" th:href="@{/auth/login}">로그인</a>
+                <a class="btn btn-secondary btn-sm" th:href="@{/auth/regist}">회원가입</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- 게시글 목록 -->
+<div class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">게시글 목록</h5>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${posts != null and posts.size() > 0}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-center">
+                    <tr>
+                        <th style="width:60%">제목</th>
+                        <th style="width:20%">작성자</th>
+                        <th style="width:20%">작성일</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="post : ${posts}">
+                        <td>
+                            <a th:href="@{|/post/${post.postId}|}" th:text="${post.postTitle}" class="text-decoration-none">제목</a>
+                        </td>
+                        <td class="text-center" th:text="${post.postAuthorId}">작성자</td>
+                        <td class="text-center" th:text="${#temporals.format(post.postCreatedAt, 'yyyy-MM-dd HH:mm')}">작성일</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${posts == null or posts.size() == 0}">
+                <div class="text-center py-5">
+                    <p class="text-muted mb-0">등록된 게시글이 없습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white" th:if="${postPageInfo != null and postPageInfo.totalPage > 1}">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item" th:classappend="${postPageInfo.currentPage == 1} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/(postType=${currentType}, page=${postPageInfo.currentPage - 1})}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item"
+                        th:each="pageNum : ${#numbers.sequence(1, postPageInfo.totalPage)}"
+                        th:classappend="${pageNum == postPageInfo.currentPage} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/(postType=${currentType}, page=${pageNum})}"
+                           th:text="${pageNum}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${postPageInfo.currentPage == postPageInfo.totalPage} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/(postType=${currentType}, page=${postPageInfo.currentPage + 1})}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const loginMsg = /*[[${loginMsg}]]*/ null;
+    const saveMsg = /*[[${saveMsg}]]*/ null;
+
+    if (loginMsg !== null) {
+        const toastEl = document.getElementById('loginToast');
+        if (toastEl) new bootstrap.Toast(toastEl).show();
+    }
+
+    if (saveMsg !== null) {
+        const toastEl = document.getElementById('saveToast');
+        if (toastEl) new bootstrap.Toast(toastEl).show();
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

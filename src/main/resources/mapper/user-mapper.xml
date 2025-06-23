@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.post_project.mapper.UserMapper">
+    <insert id="saveUser" parameterType="user" useGeneratedKeys="true" keyProperty="userId">
+        insert into user
+         (user_name,
+          user_email,
+          user_passwd)
+      VALUES
+        (#{userName},
+         #{userEmail},
+         #{userPasswd})
+    </insert>
+
+
+    <select id="findByUserEmail" parameterType="user" resultType="user">
+        SELECT
+            user_id     AS userId,
+            user_name   AS userName,
+            user_email  AS userEmail,
+            user_passwd AS userPasswd
+        FROM user
+        WHERE user_email = #{userEmail}
+    </select>
+
+</mapper>
